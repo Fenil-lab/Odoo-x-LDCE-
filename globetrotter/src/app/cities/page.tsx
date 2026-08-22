@@ -63,6 +63,18 @@ export default function CitiesPage() {
         }
 
         setSavingCityId(city.id);
+        const { data: existingStop } = await supabase
+            .from('stops')
+            .select('id')
+            .eq('trip_id', trip.id)
+            .eq('city_id', city.id)
+            .limit(1)
+            .maybeSingle();
+        if (existingStop) {
+            setErrorMessage(`${city.name} is already a stop in ${trip.name}.`);
+            setSavingCityId(null);
+            return;
+        }
         const { data: lastStop } = await supabase
             .from('stops')
             .select('order_index')

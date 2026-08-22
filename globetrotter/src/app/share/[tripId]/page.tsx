@@ -22,7 +22,7 @@ export default function SharedTripPage() {
 
     useEffect(() => {
         const loadSharedTrip = async () => {
-            const { data: tripData } = await supabase.from('trips').select('*').eq('id', tripId).eq('is_public', true).single();
+            const { data: tripData } = await supabase.from('trips').select('*').eq('id', tripId).eq('is_public', true).maybeSingle();
             if (tripData) {
                 setTrip(tripData);
                 const { data: stopData } = await supabase.from('stops').select('*, city:cities(*)').eq('trip_id', tripId).order('order_index');
@@ -46,10 +46,20 @@ export default function SharedTripPage() {
         if (tripError || !copiedTrip) { setMessage(tripError?.message || 'Unable to copy trip.'); setCopying(false); return; }
         for (const stop of stops) {
             const { data: copiedStop, error: stopError } = await supabase.from('stops').insert({ trip_id: copiedTrip.id, city_id: stop.city_id, start_date: stop.start_date, end_date: stop.end_date, order_index: stop.order_index, transport_cost: stop.transport_cost, stay_cost: stop.stay_cost }).select().single();
-            if (stopError || !copiedStop) { setMessage(stopError?.message || 'Unable to copy a stop.'); setCopying(false); return; }
+            if (stopError || !copiedStop) {
+                await supabase.from('trips').delete().eq('id', copiedTrip.id);
+                setMessage(stopError?.message || 'Unable to copy a stop.');
+                setCopying(false);
+                return;
+            }
             if (stop.activities.length) {
                 const { error: activitiesError } = await supabase.from('activities').insert(stop.activities.map(activity => ({ stop_id: copiedStop.id, activity_catalog_id: activity.activity_catalog_id, name: activity.name, cost: activity.cost, category: activity.category, time_of_day: activity.time_of_day })));
-                if (activitiesError) { setMessage(activitiesError.message); setCopying(false); return; }
+                if (activitiesError) {
+                    await supabase.from('trips').delete().eq('id', copiedTrip.id);
+                    setMessage(activitiesError.message);
+                    setCopying(false);
+                    return;
+                }
             }
         }
         setCopying(false);
