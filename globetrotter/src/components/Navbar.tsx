@@ -14,6 +14,7 @@ export default function Navbar() {
         { href: '/dashboard', label: 'Dashboard' },
         { href: '/trips', label: 'My Trips' },
         { href: '/cities', label: 'Explore Cities' },
+        { href: '/activities', label: 'Activities' },
     ];
 
     return (
