@@ -18,7 +18,7 @@ export default function Navbar() {
     ];
 
     return (
-        <nav className="bg-white border-b border-border sticky top-0 z-50">
+        <nav className="bg-text text-white sticky top-0 z-50 shadow-lg">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
                     <Link href="/dashboard" className="flex items-center gap-2.5">
@@ -28,7 +28,7 @@ export default function Navbar() {
                                 <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
                             </svg>
                         </div>
-                        <span className="text-lg font-bold text-text">GlobeTrotter</span>
+                        <span className="text-lg font-bold text-white" style={{ fontFamily: 'var(--font-display)' }}>GlobeTrotter</span>
                     </Link>
 
                     <div className="flex items-center gap-1">
@@ -37,8 +37,8 @@ export default function Navbar() {
                                 key={link.href}
                                 href={link.href}
                                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${pathname === link.href || pathname.startsWith(link.href + '/')
-                                        ? 'bg-primary/10 text-primary'
-                                        : 'text-text-secondary hover:text-text hover:bg-surface-dim'
+                                        ? 'bg-primary text-text'
+                                        : 'text-white/70 hover:text-white hover:bg-white/10'
                                     }`}
                             >
                                 {link.label}
@@ -47,15 +47,15 @@ export default function Navbar() {
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <span className="text-sm text-text-secondary hidden sm:block">
+                        <span className="text-sm text-white/70 hidden sm:block">
                             {user.email}
                         </span>
-                        <Link href="/profile" className="text-sm text-text-secondary hover:text-primary transition-colors font-medium">
+                        <Link href="/profile" className="text-sm text-white/70 hover:text-primary transition-colors font-medium">
                             Profile
                         </Link>
                         <button
                             onClick={signOut}
-                            className="text-sm text-text-secondary hover:text-danger transition-colors font-medium"
+                            className="text-sm text-white/70 hover:text-danger transition-colors font-medium"
                         >
                             Sign Out
                         </button>

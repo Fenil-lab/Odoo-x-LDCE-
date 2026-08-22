@@ -1,24 +1,26 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #0E7C6B;
-  --color-primary-light: #12A68E;
-  --color-primary-dark: #0A5C50;
-  --color-accent: #F59E0B;
-  --color-accent-light: #FBBF24;
-  --color-surface: #FFFFFF;
-  --color-surface-dim: #F8FAFB;
-  --color-surface-card: #FFFFFF;
-  --color-border: #E2E8F0;
-  --color-border-light: #F1F5F9;
-  --color-text: #1E293B;
-  --color-text-secondary: #64748B;
-  --color-text-muted: #94A3B8;
-  --color-danger: #EF4444;
-  --color-danger-light: #FEE2E2;
-  --color-success: #10B981;
-  --color-success-light: #D1FAE5;
-  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --color-primary: #C9A15A;
+  --color-primary-light: #D8B875;
+  --color-primary-dark: #A9823E;
+  --color-accent: #C9A15A;
+  --color-accent-light: #D8B875;
+  --color-surface: #F6F1E7;
+  --color-surface-dim: #F6F1E7;
+  --color-surface-card: #FBF8F0;
+  --color-border: #D8D0C0;
+  --color-border-light: #E9E2D5;
+  --color-text: #12181F;
+  --color-text-secondary: rgb(18 24 31 / 68%);
+  --color-text-muted: rgb(18 24 31 / 48%);
+  --color-danger: #E4633B;
+  --color-danger-light: #F9DED5;
+  --color-success: #4C7A79;
+  --color-success-light: #DCE9E6;
+  --font-sans: var(--font-public-sans), ui-sans-serif, sans-serif;
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-mono: var(--font-plex-mono), monospace;
 }
 
 @layer base {
@@ -29,6 +31,8 @@
   body {
     font-family: var(--font-sans);
     background-color: var(--color-surface-dim);
+    background-image: radial-gradient(rgb(18 24 31 / 4%) 0.7px, transparent 0.7px);
+    background-size: 14px 14px;
     color: var(--color-text);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -37,30 +41,30 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-primary text-white px-5 py-2.5 rounded-lg font-medium
+    @apply bg-primary text-text px-5 py-2.5 rounded-lg font-semibold
            hover:bg-primary-dark transition-all duration-200
            active:scale-[0.98] shadow-sm hover:shadow-md;
   }
 
   .btn-outline {
-    @apply border border-border text-text px-5 py-2.5 rounded-lg font-medium
-           hover:bg-surface-dim transition-all duration-200
+        @apply border border-border text-text px-5 py-2.5 rounded-lg font-semibold
+          hover:bg-white/60 transition-all duration-200
            active:scale-[0.98];
   }
 
   .btn-danger {
-    @apply bg-danger text-white px-5 py-2.5 rounded-lg font-medium
-           hover:bg-red-600 transition-all duration-200
+        @apply bg-danger text-white px-5 py-2.5 rounded-lg font-semibold
+          hover:bg-danger/85 transition-all duration-200
            active:scale-[0.98];
   }
 
   .card {
-    @apply bg-surface-card rounded-xl border border-border shadow-sm
-           hover:shadow-md transition-shadow duration-200;
+        @apply bg-surface-card rounded-xl border border-border shadow-[0_8px_24px_rgb(18_24_31_/_6%)]
+          hover:shadow-[0_12px_28px_rgb(18_24_31_/_10%)] transition-shadow duration-200;
   }
 
   .input-field {
-    @apply w-full px-4 py-2.5 rounded-lg border border-border bg-white
+    @apply w-full px-4 py-2.5 rounded-lg border border-border bg-surface-card
            text-text placeholder-text-muted
            focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary
            transition-all duration-200;
@@ -76,9 +80,49 @@
 
   .page-title {
     @apply text-2xl sm:text-3xl font-bold text-text;
+    font-family: var(--font-display);
+    letter-spacing: 0;
   }
 
   .section-title {
     @apply text-lg font-semibold text-text;
+    font-family: var(--font-display);
+  }
+
+  .mono-data {
+    font-family: var(--font-mono);
+    letter-spacing: 0;
+  }
+
+  .route-list {
+    position: relative;
+  }
+
+  .route-list::before {
+    content: '';
+    position: absolute;
+    left: 1.85rem;
+    top: 1.5rem;
+    bottom: 1.5rem;
+    border-left: 2px dashed rgb(201 161 90 / 58%);
+    pointer-events: none;
+  }
+
+  .route-stop {
+    position: relative;
+  }
+
+  .route-stop::before {
+    content: '';
+    position: absolute;
+    left: 1rem;
+    top: 1.5rem;
+    width: 1.75rem;
+    height: 1.75rem;
+    border: 5px solid var(--color-surface-dim);
+    border-radius: 999px;
+    background: var(--color-primary);
+    z-index: 2;
+    pointer-events: none;
   }
 }

@@ -376,9 +376,9 @@ export default function ItineraryBuilderPage() {
                         <button onClick={() => setShowAddStop(true)} className="btn-primary">Add Your First Stop</button>
                     </div>
                 ) : (
-                    <div className="space-y-6">
+                    <div className="space-y-6 route-list">
                         {stops.map((stop, index) => (
-                            <div key={stop.id} className="card overflow-hidden">
+                            <div key={stop.id} className="card overflow-hidden route-stop">
                                 {/* Stop Header */}
                                 <div className="bg-gradient-to-r from-primary/5 to-transparent px-6 py-4 border-b border-border-light">
                                     <div className="flex items-center justify-between">

@@ -53,7 +53,7 @@ export default function DashboardPage() {
             <Navbar />
             <main className="page-container">
                 {/* Hero Section */}
-                <div className="bg-gradient-to-br from-primary to-primary-dark rounded-2xl p-8 sm:p-10 mb-8 text-white">
+                <div className="bg-text rounded-2xl p-8 sm:p-10 mb-8 text-white shadow-xl">
                     <h1 className="text-2xl sm:text-3xl font-bold mb-2">
                         Welcome back, {userName}! 👋
                     </h1>

@@ -227,9 +227,9 @@ export default function TripDetailPage() {
                             <button onClick={() => router.push(`/trips/${tripId}/builder`)} className="btn-primary">Open Builder</button>
                         </div>
                     ) : (
-                        <div className="space-y-4">
+                        <div className="space-y-4 route-list">
                             {stops.map((stop, index) => (
-                                <div key={stop.id} className="card overflow-hidden">
+                                <div key={stop.id} className="card overflow-hidden route-stop">
                                     <div className="bg-gradient-to-r from-primary/5 to-transparent px-6 py-4 border-b border-border-light">
                                         <div className="flex items-center gap-3">
                                             <div className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center text-sm font-bold shrink-0">
