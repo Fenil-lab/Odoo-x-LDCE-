@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
@@ -22,11 +22,8 @@ export default function TripsPage() {
         }
     }, [user, authLoading, router]);
 
-    useEffect(() => {
-        if (user) fetchTrips();
-    }, [user]);
-
-    const fetchTrips = async () => {
+    const fetchTrips = useCallback(async () => {
+        if (!user) return;
         const { data: tripsData } = await supabase
             .from('trips')
             .select('*')
@@ -51,7 +48,12 @@ export default function TripsPage() {
         }
 
         setLoading(false);
-    };
+    }, [user]);
+
+    useEffect(() => {
+        const loadTrips = async () => { await fetchTrips(); };
+        void loadTrips();
+    }, [fetchTrips]);
 
     const deleteTrip = async (tripId: string) => {
         if (!confirm('Delete this trip and all its data? This cannot be undone.')) return;

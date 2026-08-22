@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
@@ -20,13 +20,8 @@ export default function DashboardPage() {
         }
     }, [user, authLoading, router]);
 
-    useEffect(() => {
-        if (user) {
-            fetchTrips();
-        }
-    }, [user]);
-
-    const fetchTrips = async () => {
+    const fetchTrips = useCallback(async () => {
+        if (!user) return;
         const { data } = await supabase
             .from('trips')
             .select('*')
@@ -36,7 +31,12 @@ export default function DashboardPage() {
 
         setTrips(data || []);
         setLoading(false);
-    };
+    }, [user]);
+
+    useEffect(() => {
+        const loadTrips = async () => { await fetchTrips(); };
+        void loadTrips();
+    }, [fetchTrips]);
 
     if (authLoading || !user) {
         return (

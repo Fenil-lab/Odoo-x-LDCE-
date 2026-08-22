@@ -37,7 +37,11 @@ export default function EditTripPage() {
         setLoading(false);
     }, [user, tripId]);
 
-    useEffect(() => { if (user) fetchTrip(); }, [user, fetchTrip]);
+    useEffect(() => {
+        if (!user) return;
+        const loadTrip = async () => { await fetchTrip(); };
+        void loadTrip();
+    }, [user, fetchTrip]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
