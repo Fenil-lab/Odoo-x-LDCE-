@@ -47,6 +47,7 @@ export default function DashboardPage() {
     }
 
     const userName = user.email?.split('@')[0] || 'Traveler';
+    const isNewTraveler = !user.last_sign_in_at;
 
     return (
         <div className="min-h-screen bg-surface-dim">
@@ -55,7 +56,7 @@ export default function DashboardPage() {
                 {/* Hero Section */}
                 <div className="bg-text rounded-2xl p-8 sm:p-10 mb-8 text-white shadow-xl">
                     <h1 className="text-2xl sm:text-3xl font-bold mb-2">
-                        Welcome back, {userName}! 👋
+                        {isNewTraveler ? `Welcome to GlobeTrotter, ${userName}!` : `Welcome back, ${userName}!`} 👋
                     </h1>
                     <p className="text-white/80 mb-6 max-w-lg">
                         Ready to plan your next adventure? Create a new trip and start adding destinations, activities, and track your budget.

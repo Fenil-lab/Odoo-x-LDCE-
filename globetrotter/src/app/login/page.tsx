@@ -9,6 +9,7 @@ export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [showCreateAccount, setShowCreateAccount] = useState(false);
     const [loading, setLoading] = useState(false);
     const [resetSuccess, setResetSuccess] = useState(false);
     const { signIn } = useAuth();
@@ -24,6 +25,7 @@ export default function LoginPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+        setShowCreateAccount(false);
 
         if (!email || !password) {
             setError('Please fill in all fields.');
@@ -35,7 +37,8 @@ export default function LoginPage() {
         setLoading(false);
 
         if (error) {
-            setError(error.message);
+            setError('We could not sign you in with those details. Check your email and password, or create a new account.');
+            setShowCreateAccount(true);
         } else {
             router.push('/dashboard');
         }
@@ -59,7 +62,12 @@ export default function LoginPage() {
                     <form onSubmit={handleSubmit} className="space-y-5">
                         {error && (
                             <div className="bg-danger-light text-danger text-sm px-4 py-3 rounded-lg">
-                                {error}
+                                <p>{error}</p>
+                                {showCreateAccount && (
+                                    <Link href="/signup" className="inline-block mt-2 font-semibold underline">
+                                        Create an account
+                                    </Link>
+                                )}
                             </div>
                         )}
                         {resetSuccess && (
