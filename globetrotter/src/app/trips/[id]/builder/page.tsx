@@ -23,6 +23,7 @@ export default function ItineraryBuilderPage() {
     const [cities, setCities] = useState<City[]>([]);
     const [activityCatalog, setActivityCatalog] = useState<ActivityCatalog[]>([]);
     const [loading, setLoading] = useState(true);
+    const [errorMessage, setErrorMessage] = useState('');
 
     // Add Stop modal
     const [showAddStop, setShowAddStop] = useState(false);
@@ -84,10 +85,26 @@ export default function ItineraryBuilderPage() {
         setLoading(false);
     }, [user, tripId]);
 
-    useEffect(() => { if (user) fetchData(); }, [user, fetchData]);
+    useEffect(() => {
+        if (!user) return;
+        const loadData = async () => { await fetchData(); };
+        void loadData();
+    }, [user, fetchData]);
 
     const addStop = async () => {
-        if (!newStopCity || !newStopStart || !newStopEnd) return;
+        setErrorMessage('');
+        if (!newStopCity || !newStopStart || !newStopEnd) {
+            setErrorMessage('Select a city and both stop dates.');
+            return;
+        }
+        if (newStopEnd < newStopStart) {
+            setErrorMessage('Stop end date cannot be before its start date.');
+            return;
+        }
+        if (trip && (newStopStart < trip.start_date || newStopEnd > trip.end_date)) {
+            setErrorMessage('Stop dates must fall within the trip dates.');
+            return;
+        }
         setSavingStop(true);
 
         const { data, error } = await supabase
@@ -104,7 +121,9 @@ export default function ItineraryBuilderPage() {
             .select('*, city:cities(*)')
             .single();
 
-        if (!error && data) {
+        if (error) {
+            setErrorMessage(error.message);
+        } else if (data) {
             setStops(prev => [...prev, { ...data, activities: [] }]);
             setShowAddStop(false);
             setNewStopCity('');
@@ -116,19 +135,45 @@ export default function ItineraryBuilderPage() {
 
     const removeStop = async (stopId: string) => {
         if (!confirm('Remove this stop and all its activities?')) return;
-        await supabase.from('activities').delete().eq('stop_id', stopId);
-        await supabase.from('stops').delete().eq('id', stopId);
+        setErrorMessage('');
+        const { error: activitiesError } = await supabase.from('activities').delete().eq('stop_id', stopId);
+        if (activitiesError) {
+            setErrorMessage(activitiesError.message);
+            return;
+        }
+        const { error: stopError } = await supabase.from('stops').delete().eq('id', stopId);
+        if (stopError) {
+            setErrorMessage(stopError.message);
+            return;
+        }
         setStops(prev => prev.filter(s => s.id !== stopId));
     };
 
     const addActivity = async () => {
-        if (!activeStopId) return;
+        setErrorMessage('');
+        if (!activeStopId) {
+            setErrorMessage('Choose a stop before adding an activity.');
+            return;
+        }
         setSavingActivity(true);
 
         let name = customName;
-        let cost = parseFloat(customCost) || 0;
+        const parsedCustomCost = Number(customCost);
+        let cost = customCost === '' ? 0 : parsedCustomCost;
         let category = customCategory;
         let catalogId: string | null = null;
+
+        if (activityMode === 'catalog' && !selectedCatalogId) {
+            setErrorMessage('Select an activity from the catalog.');
+            setSavingActivity(false);
+            return;
+        }
+
+        if (activityMode === 'custom' && (!Number.isFinite(parsedCustomCost) || parsedCustomCost < 0)) {
+            setErrorMessage('Activity cost must be zero or greater.');
+            setSavingActivity(false);
+            return;
+        }
 
         if (activityMode === 'catalog' && selectedCatalogId) {
             const cat = activityCatalog.find(a => a.id === selectedCatalogId);
@@ -140,7 +185,11 @@ export default function ItineraryBuilderPage() {
             }
         }
 
-        if (!name.trim()) { setSavingActivity(false); return; }
+        if (!name.trim()) {
+            setErrorMessage('Enter an activity name.');
+            setSavingActivity(false);
+            return;
+        }
 
         const { data, error } = await supabase
             .from('activities')
@@ -155,7 +204,9 @@ export default function ItineraryBuilderPage() {
             .select()
             .single();
 
-        if (!error && data) {
+        if (error) {
+            setErrorMessage(error.message);
+        } else if (data) {
             setStops(prev =>
                 prev.map(s =>
                     s.id === activeStopId
@@ -169,7 +220,12 @@ export default function ItineraryBuilderPage() {
     };
 
     const removeActivity = async (stopId: string, activityId: string) => {
-        await supabase.from('activities').delete().eq('id', activityId);
+        setErrorMessage('');
+        const { error } = await supabase.from('activities').delete().eq('id', activityId);
+        if (error) {
+            setErrorMessage(error.message);
+            return;
+        }
         setStops(prev =>
             prev.map(s =>
                 s.id === stopId
@@ -180,18 +236,31 @@ export default function ItineraryBuilderPage() {
     };
 
     const saveCosts = async (stopId: string) => {
-        await supabase
+        setErrorMessage('');
+        const transportCost = Number(tempTransport);
+        const stayCost = Number(tempStay);
+        if (!Number.isFinite(transportCost) || transportCost < 0 || !Number.isFinite(stayCost) || stayCost < 0) {
+            setErrorMessage('Costs must be zero or greater.');
+            return;
+        }
+
+        const { error } = await supabase
             .from('stops')
             .update({
-                transport_cost: parseFloat(tempTransport) || 0,
-                stay_cost: parseFloat(tempStay) || 0,
+                transport_cost: transportCost,
+                stay_cost: stayCost,
             })
             .eq('id', stopId);
+
+        if (error) {
+            setErrorMessage(error.message);
+            return;
+        }
 
         setStops(prev =>
             prev.map(s =>
                 s.id === stopId
-                    ? { ...s, transport_cost: parseFloat(tempTransport) || 0, stay_cost: parseFloat(tempStay) || 0 }
+                    ? { ...s, transport_cost: transportCost, stay_cost: stayCost }
                     : s
             )
         );
@@ -256,6 +325,12 @@ export default function ItineraryBuilderPage() {
         <div className="min-h-screen bg-surface-dim">
             <Navbar />
             <main className="page-container">
+                {errorMessage && (
+                    <div className="mb-6 flex items-start justify-between gap-4 rounded-lg bg-danger-light px-4 py-3 text-sm text-danger" role="alert">
+                        <span>{errorMessage}</span>
+                        <button onClick={() => setErrorMessage('')} aria-label="Dismiss error" className="font-semibold">×</button>
+                    </div>
+                )}
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                     <div>
@@ -542,11 +617,11 @@ export default function ItineraryBuilderPage() {
                                 <div className="grid grid-cols-2 gap-3">
                                     <div>
                                         <label className="label">Start Date</label>
-                                        <input type="date" value={newStopStart} onChange={e => setNewStopStart(e.target.value)} className="input-field" />
+                                        <input type="date" min={trip.start_date} max={trip.end_date} value={newStopStart} onChange={e => setNewStopStart(e.target.value)} className="input-field" />
                                     </div>
                                     <div>
                                         <label className="label">End Date</label>
-                                        <input type="date" value={newStopEnd} onChange={e => setNewStopEnd(e.target.value)} className="input-field" />
+                                        <input type="date" min={newStopStart || trip.start_date} max={trip.end_date} value={newStopEnd} onChange={e => setNewStopEnd(e.target.value)} className="input-field" />
                                     </div>
                                 </div>
                             </div>
