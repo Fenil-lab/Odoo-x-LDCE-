@@ -1,97 +1,48 @@
-# GlobeTrotter 🌍
+# GlobeTrotter
 
-A multi-city travel itinerary planner with budget tracking, built with Next.js + Supabase.
+GlobeTrotter is a travel planner for building multi-city trips.
 
-## Quick Start (for team members)
+You can:
 
-### 1. Install dependencies
-
-```bash
-cd globetrotter
-npm install
-```
-
-### 2. Set up environment variables
-
-```bash
-cp .env.example .env.local
-```
-
-Then edit `.env.local` and paste the Supabase credentials:
-- **Project URL**: `https://amndzaqapjndtjxxmnlk.supabase.co`
-- **Anon Key**: Ask the project owner or check the shared team doc
-
-> You can find these in Supabase Dashboard → Settings → API
-
-### 3. Set up the database (first time only)
-
-1. Go to [Supabase SQL Editor](https://supabase.com/dashboard) for our project
-2. Open a **New Query**
-3. Copy-paste the entire contents of `supabase-schema.sql`
-4. Click **Run**
-
-This creates all tables, row-level security policies, and seeds 35 cities + 70+ activities.
-
-### 4. Run the dev server
-
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) → Sign up → Start planning trips!
+- Create and edit trips
+- Add cities and activities
+- Plan stops by date
+- Track travel costs
+- View trips on a timeline
+- Share an itinerary with a public link
+- Reset your account password
 
 ## Tech Stack
 
-- **Next.js 16** (App Router) + TypeScript
-- **Supabase** (Auth + Postgres)
-- **Tailwind CSS v4**
-- **Recharts** (budget charts)
+- **Next.js**: Runs the web app
+- **TypeScript**: Helps keep the code reliable
+- **Tailwind CSS**: Styles the screens
+- **Supabase**: Handles login and stores trip data
+- **PostgreSQL**: The database provided by Supabase
+- **Recharts**: Displays budget charts
 
-## Project Structure
+## Run Locally
 
-```
-src/
-├── app/
-│   ├── login/            # Email/password login
-│   ├── signup/           # Account creation
-│   ├── forgot-password/  # Password reset request
-│   ├── reset-password/   # Set new password (from email link)
-│   ├── dashboard/        # Welcome + recent trips
-│   ├── trips/
-│   │   ├── page.tsx      # Trip list with cards
-│   │   ├── new/          # Create trip form
-│   │   └── [id]/
-│   │       ├── page.tsx  # Itinerary view + budget charts
-│   │       ├── builder/  # Add stops & activities
-│   │       ├── edit/     # Edit trip details
-│   │       └── calendar/ # Calendar view
-│   ├── cities/           # Explore cities
-│   ├── activities/       # Browse activities
-│   ├── profile/          # User profile
-│   └── share/[tripId]/   # Public shared trip
-├── components/
-│   └── Navbar.tsx
-├── context/
-│   └── AuthContext.tsx    # Supabase auth provider
-└── lib/
-    ├── supabase.ts       # Supabase client
-    └── types.ts          # TypeScript interfaces
-```
-
-## Database Schema
-
-See `supabase-schema.sql` for the full schema. Tables:
-
-- `cities` — 35 seeded cities with cost indices
-- `activity_catalog` — 70+ seeded activities (city-specific + generic)
-- `trips` — User trips
-- `stops` — Trip stops (linked to cities)
-- `activities` — Activities within stops
-
-## Deploy to Vercel
+From the `globetrotter` folder:
 
 ```bash
-npx vercel
+npm install
+npm run dev
 ```
 
-Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` as environment variables in Vercel project settings.
+Open [http://localhost:3000](http://localhost:3000).
+
+The app needs these values in `.env.local`:
+
+```text
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+## Database Setup
+
+1. Open the Supabase SQL Editor.
+2. Run `supabase-schema.sql` once.
+3. Run `supabase-public-sharing-migration.sql` for public trip sharing.
+
+The database includes cities, activities, trips, stops, and user accounts.
