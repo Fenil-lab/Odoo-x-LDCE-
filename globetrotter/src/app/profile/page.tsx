@@ -29,6 +29,13 @@ export default function ProfilePage() {
         event.preventDefault();
         setSaving(true);
         setMessage(null);
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        if (!currentSession) {
+            setSaving(false);
+            setMessage({ text: 'Your session has expired. Please sign in again.', error: true });
+            setTimeout(() => router.replace('/login'), 1200);
+            return;
+        }
         const { error } = await supabase.auth.updateUser({
             email: email.trim(),
             data: { display_name: name.trim() },
@@ -40,6 +47,12 @@ export default function ProfilePage() {
     const sendPasswordReset = async () => {
         if (!user?.email) return;
         setMessage(null);
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        if (!currentSession) {
+            setMessage({ text: 'Your session has expired. Please sign in again.', error: true });
+            setTimeout(() => router.replace('/login'), 1200);
+            return;
+        }
         const { error } = await supabase.auth.resetPasswordForEmail(user.email, { redirectTo: `${window.location.origin}/profile` });
         setMessage(error ? { text: error.message, error: true } : { text: 'Password reset instructions sent to your email.', error: false });
     };
