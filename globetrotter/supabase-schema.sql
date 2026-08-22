@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS trips (
   start_date DATE NOT NULL,
   end_date DATE NOT NULL,
   description TEXT DEFAULT '',
+  is_public BOOLEAN NOT NULL DEFAULT FALSE,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -128,6 +129,31 @@ CREATE POLICY "Authenticated can read cities" ON cities
   FOR SELECT USING (auth.role() = 'authenticated');
 CREATE POLICY "Authenticated can read activity_catalog" ON activity_catalog
   FOR SELECT USING (auth.role() = 'authenticated');
+
+-- Public itinerary sharing. Run this migration on an existing database too.
+ALTER TABLE trips ADD COLUMN IF NOT EXISTS is_public BOOLEAN NOT NULL DEFAULT FALSE;
+CREATE POLICY "Anyone can view public trips" ON trips
+  FOR SELECT USING (is_public = TRUE);
+CREATE POLICY "Anyone can view stops of public trips" ON stops
+  FOR SELECT USING (
+    EXISTS (SELECT 1 FROM trips WHERE trips.id = stops.trip_id AND trips.is_public = TRUE)
+  );
+CREATE POLICY "Anyone can view activities of public trips" ON activities
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM stops
+      JOIN trips ON trips.id = stops.trip_id
+      WHERE stops.id = activities.stop_id AND trips.is_public = TRUE
+    )
+  );
+CREATE POLICY "Anyone can view cities in public trips" ON cities
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM stops
+      JOIN trips ON trips.id = stops.trip_id
+      WHERE stops.city_id = cities.id AND trips.is_public = TRUE
+    )
+  );
 
 -- =============================================
 -- SEED DATA: Cities (35 cities)

@@ -20,6 +20,7 @@ export interface Trip {
     start_date: string;
     end_date: string;
     description: string;
+    is_public: boolean;
     created_at: string;
 }
 

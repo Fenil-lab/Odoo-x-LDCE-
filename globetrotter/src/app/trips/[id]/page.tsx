@@ -25,6 +25,8 @@ export default function TripDetailPage() {
     const [stops, setStops] = useState<StopWithDetails[]>([]);
     const [loading, setLoading] = useState(true);
     const [viewMode, setViewMode] = useState<'stops' | 'budget'>('stops');
+    const [sharing, setSharing] = useState(false);
+    const [shareMessage, setShareMessage] = useState('');
 
     useEffect(() => { if (!authLoading && !user) router.replace('/login'); }, [user, authLoading, router]);
 
@@ -60,6 +62,16 @@ export default function TripDetailPage() {
         const loadData = async () => { await fetchData(); };
         void loadData();
     }, [user, fetchData]);
+
+    const toggleSharing = async () => {
+        if (!trip) return;
+        setSharing(true);
+        setShareMessage('');
+        const { data, error } = await supabase.from('trips').update({ is_public: !trip.is_public }).eq('id', trip.id).select().single();
+        if (error) setShareMessage(error.message);
+        else if (data) setTrip(data);
+        setSharing(false);
+    };
 
     // Budget calculations
     const totalActivityCost = stops.reduce((sum, s) => sum + s.activities.reduce((a, act) => a + Number(act.cost), 0), 0);
@@ -148,7 +160,10 @@ export default function TripDetailPage() {
                             {trip.description && <> · {trip.description}</>}
                         </p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                    <button onClick={toggleSharing} disabled={sharing} className="btn-outline inline-flex items-center gap-2">
+                        {sharing ? 'Saving...' : trip.is_public ? 'Unpublish' : 'Share trip'}
+                    </button>
                     <button onClick={() => router.push(`/trips/${tripId}/calendar`)} className="btn-outline inline-flex items-center gap-2">
                         Calendar
                     </button>
@@ -160,6 +175,8 @@ export default function TripDetailPage() {
                     </button>
                     </div>
                 </div>
+                {shareMessage && <div className="mb-4 rounded-lg bg-danger-light px-4 py-3 text-sm text-danger" role="alert">{shareMessage}</div>}
+                {trip.is_public && <div className="mb-6 rounded-lg bg-success-light px-4 py-3 text-sm text-green-700" role="status">This trip is public at <button onClick={() => navigator.clipboard?.writeText(`${window.location.origin}/share/${trip.id}`)} className="font-semibold underline">/share/{trip.id}</button></div>}
 
                 {/* View Toggle */}
                 <div className="flex items-center gap-1 bg-white rounded-xl p-1 border border-border mb-6 w-fit">
