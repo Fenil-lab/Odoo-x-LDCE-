@@ -68,7 +68,11 @@ export default function TripDetailPage() {
         setSharing(true);
         setShareMessage('');
         const { data, error } = await supabase.from('trips').update({ is_public: !trip.is_public }).eq('id', trip.id).select().single();
-        if (error) setShareMessage(error.message);
+        if (error) {
+            setShareMessage(error.message.includes("'is_public'")
+                ? 'Sharing needs one database update. Run supabase-public-sharing-migration.sql in the Supabase SQL editor, then try again.'
+                : error.message);
+        }
         else if (data) setTrip(data);
         setSharing(false);
     };
