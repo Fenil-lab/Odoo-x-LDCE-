@@ -13,6 +13,7 @@ export default function Navbar() {
     const navLinks = [
         { href: '/dashboard', label: 'Dashboard' },
         { href: '/trips', label: 'My Trips' },
+        { href: '/cities', label: 'Explore Cities' },
     ];
 
     return (
