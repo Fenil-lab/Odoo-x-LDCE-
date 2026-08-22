@@ -12,15 +12,15 @@ export default function ResetPasswordPage() {
     const [success, setSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
     const [ready, setReady] = useState(false);
-    const { updatePassword, session } = useAuth();
+    const { updatePassword, session, loading: authLoading } = useAuth();
     const router = useRouter();
 
     useEffect(() => {
-        // Supabase sets the session automatically when the user clicks the reset link
-        // The URL contains hash fragments that Supabase client parses
-        const timer = setTimeout(() => setReady(true), 1000);
-        return () => clearTimeout(timer);
-    }, []);
+        const checkAuthReady = async () => {
+            if (!authLoading) setReady(true);
+        };
+        void checkAuthReady();
+    }, [authLoading]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -49,7 +49,7 @@ export default function ResetPasswordPage() {
             setError(error.message);
         } else {
             setSuccess(true);
-            setTimeout(() => router.push('/dashboard'), 2000);
+            setTimeout(() => router.push('/login?reset=success'), 1500);
         }
     };
 

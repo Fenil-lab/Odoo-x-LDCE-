@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -10,8 +10,16 @@ export default function LoginPage() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [resetSuccess, setResetSuccess] = useState(false);
     const { signIn } = useAuth();
     const router = useRouter();
+
+    useEffect(() => {
+        const readResetStatus = async () => {
+            setResetSuccess(new URLSearchParams(window.location.search).get('reset') === 'success');
+        };
+        void readResetStatus();
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -52,6 +60,11 @@ export default function LoginPage() {
                         {error && (
                             <div className="bg-danger-light text-danger text-sm px-4 py-3 rounded-lg">
                                 {error}
+                            </div>
+                        )}
+                        {resetSuccess && (
+                            <div className="bg-success-light text-green-700 text-sm px-4 py-3 rounded-lg" role="status">
+                                Your password was updated. You can now sign in.
                             </div>
                         )}
 

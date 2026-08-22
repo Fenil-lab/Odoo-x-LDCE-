@@ -25,11 +25,7 @@ export default function ForgotPasswordPage() {
         setLoading(false);
 
         if (error) {
-            if (error.message.toLowerCase().includes('invalid')) {
-                setError('__no_account__');
-            } else {
-                setError(error.message);
-            }
+            setError('We could not send the reset email right now. Please try again shortly.');
         } else {
             setSuccess(true);
         }
@@ -70,20 +66,7 @@ export default function ForgotPasswordPage() {
                         </div>
                     ) : (
                         <form onSubmit={handleSubmit} className="space-y-5">
-                            {error && (
-                                error === '__no_account__' ? (
-                                    <div className="bg-accent-light/20 border border-accent/30 text-amber-800 text-sm px-4 py-3 rounded-lg">
-                                        No account found with that email.{' '}
-                                        <Link href="/signup" className="font-semibold text-primary underline">
-                                            Create an account
-                                        </Link>
-                                    </div>
-                                ) : (
-                                    <div className="bg-danger-light text-danger text-sm px-4 py-3 rounded-lg">
-                                        {error}
-                                    </div>
-                                )
-                            )}
+                            {error && <div className="bg-danger-light text-danger text-sm px-4 py-3 rounded-lg">{error}</div>}
 
                             <div>
                                 <label htmlFor="email" className="label">Email</label>
